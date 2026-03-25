@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Материки Світу / Continents Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #F7F9FC;
+            --success: #95E1D3;
+            --error: #FF8585;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--dark);
+        }
+
+        .container {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 600px;
+            overflow: hidden;
+            position: relative;
+            border: 5px solid white;
+        }
+
+        /* Header & Lang Switch */
+        .header {
+            padding: 15px 20px;
+            background: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid rgba(0,0,0,0.1);
+        }
+
+        .lang-switch select {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid var(--dark);
+            font-family: inherit;
+            font-weight: 600;
+            background: white;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .score-board {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 2px solid var(--dark);
+        }
+
+        /* Screens */
+        .screen {
+            padding: 30px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: var(--secondary);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 700;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px 0 #D64545;
+            margin: 10px;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #D64545;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            box-shadow: 0 6px 0 #3DBDB4;
+        }
+        .btn-secondary:active {
+            box-shadow: 0 2px 0 #3DBDB4;
+        }
+
+        /* Quiz Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option-card {
+            background: var(--light);
+            border: 3px solid #E0E0E0;
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+        }
+
+        .option-card:hover {
+            border-color: var(--secondary);
+            background: #E8F8F7;
+            transform: scale(1.02);
+        }
+
+        .option-card img {
+            max-width: 80px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+        }
+
+        .option-card.correct {
+            background: var(--success);
+            border-color: #2ECC71;
+            color: #006400;
+        }
+
+        .option-card.wrong {
+            background: var(--error);
+            border-color: #E74C3C;
+            color: #800000;
+        }
+
+        /* Images */
+        .quiz-image {
+            max-width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 4px solid var(--accent);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #eee;
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--secondary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Final Screen */
+        .final-score {
+            font-size: 4rem;
+            color: var(--primary);
+            font-weight: 800;
+            margin: 20px 0;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(720deg); }
+        }
+
+        @media (max-width: 500px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 { font-size: 2rem; }
+            .btn { width: 100%; margin: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="lang-switch">
+            <select id="languageSelect" onchange="changeLanguage()">
+                <option value="ua">🇺 Українська</option>
+                <option value="en">🇺🇸 English</option>
+                <option value="mm">🇲🇲 မြန်မာ</option>
+            </select>
+        </div>
+        <div class="score-board">
+            <span id="scoreDisplay">0</span> / 10
+        </div>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="startScreen" class="screen active">
+        <h1 id="titleStart">Материки Світу</h1>
+        <img src="https://image.qwenlm.ai/public_source/f4ee3f6b-3034-4791-b1f2-bb61c262ac8d/1003b39bd-a7b8-4715-b7d1-8a595cabf411.png" alt="World Map" class="quiz-image" style="height: 250px;">
+        <p id="descStart">Ласкаво просимо до вікторини! Перевір свої знання про континенти та дізнайся багато нового.</p>
+        <button class="btn" onclick="startQuiz()" id="btnStart">Почати гру</button>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quizScreen" class="screen">
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <h2 id="questionText">Question Text</h2>
+        <img id="questionImage" src="" class="quiz-image" style="display:none;">
+        <div class="options-grid" id="optionsContainer">
+            <!-- Options generated by JS -->
+        </div>
+    </div>
+
+    <!-- Final Screen -->
+    <div id="finalScreen" class="screen">
+        <h1 id="titleFinal">Вітаємо!</h1>
+        <p id="descFinal">Ти чудово впорався!</p>
+        <div class="final-score" id="finalScoreDisplay">8/10</div>
+        <button class="btn btn-secondary" onclick="restartQuiz()" id="btnRestart">Грати знову</button>
+    </div>
+</div>
+
+<script>
+    // Data Structure
+    const quizData = [
+        {
+            type: 'image',
+            img: 'https://image.qwenlm.ai/public_source/f4ee3f6b-3034-4791-b1f2-bb61c262ac8d/1e069d4ce-0e79-488b-8ab1-6125c6ccf6e1.png',
+            q: { ua: "Де живе цей лев?", en: "Where does this lion live?", mm: "ဤခြင်္သေ့သည် မည်သည့်နေရာတွင် နေထိုင်သနည်း။" },
+            options: [
+                { id: 'africa', ua: 'Африка', en: 'Africa', mm: 'အာဖရိက' },
+                { id: 'europe', ua: 'Європа', en: 'Europe', mm: 'ဥရောပ' },
+                { id: 'asia', ua: 'Азія', en: 'Asia', mm: 'အာရှ' },
+                { id: 'australia', ua: 'Австралія', en: 'Australia', mm: 'ဩစတြေးလျ' }
+            ],
+            correct: 'africa'
+        },
+        {
+            type: 'image',
+            img: 'https://image.qwenlm.ai/public_source/f4ee3f6b-3034-4791-b1f2-bb61c262ac8d/1693786d7-2c73-45f2-8ad2-3fd55ecf7fe5.png',
+            q: { ua: "Який це материк?", en: "Which continent is this?", mm: "ဒါ ဘယ်တိုက်လဲ။" },
+            options: [
+                { id: 'australia', ua: 'Австралія', en: 'Australia', mm: 'ဩစတြေးလျ' },
+                { id: 'antarctica', ua: 'Антарктида', en: 'Antarctica', mm: 'အန္တာတိက' },
+                { id: 'south_america', ua: 'Південна Америка', en: 'South America', mm: 'တောင်အမေရိက' },
+                { id: 'north_america', ua: 'Північна Америка', en: 'North America', mm: 'မြောက်အမေရိက' }
+            ],
+            correct: 'australia'
+        },
+        {
+            type: 'text',
+            img: null,
+            q: { ua: "Який материк найбільший?", en: "Which continent is the largest?", mm: "မည်သည့်တိုက်သည် အကြီးဆုံးနည်း။" },
+            options: [
+                { id: 'africa', ua: 'Африка', en: 'Africa', mm: 'အာဖရိက' },
+                { id: 'asia', ua: 'Азія', en: 'Asia', mm: 'အာရှ' },
+                { id: 'europe', ua: 'Європа', en: 'Europe', mm: 'ဥရောပ' },
+                { id: 'australia', ua: 'Австралія', en: 'Australia', mm: 'ဩစတြေးလျ' }
+            ],
+            correct: 'asia'
+        },
+        {
+            type: 'image',
+            img: 'https://image.qwenlm.ai/public_source/f4ee3f6b-3034-4791-b1f2-bb61c262ac8d/10e99f9fc-17b3-4ddf-b831-438ce6e08722.png',
+            q: { ua: "Тут дуже холодно. Де ми?", en: "It is very cold here. Where are we?", mm: "ဒီမှာ အရမ်းအေးတယ်။ ငါတို့ ဘယ်ရောက်နေတာလဲ။" },
+            options: [
+                { id: 'antarctica', ua: 'Антарктида', en: 'Antarctica', mm: 'အန္တာတိက' },
+                { id: 'africa', ua: 'Африка', en: 'Africa', mm: 'အာဖရိက' },
+                { id: 'asia', ua: 'Азія', en: 'Asia', mm: 'အာရှ' },
+                { id: 'europe', ua: 'Європа', en: 'Europe', mm: 'ဥရောပ' }
+            ],
+            correct: 'antarctica'
+        },
+        {
+            type: 'text',
+            img: null,
+            q: { ua: "Скільки всього материків на Землі?", en: "How many continents are there on Earth?", mm: "ကမ္ဘာပေါ်တွင် တိုက်ပေါင်း မည်မျှရှိသနည်း။" },
+            options: [
+                { id: '5', ua: '5', en: '5', mm: '၅' },
+                { id: '6', ua: '6', en: '6', mm: '၆' },
+                { id: '7', ua: '7', en: '7', mm: '၇' },
+                { id: '8', ua: '8', en: '8', mm: '၈' }
+            ],
+            correct: '7'
+        },
+        {
+            type: 'image',
+            img: 'https://image.qwenlm.ai/public_source/f4ee3f6b-3034-4791-b1f2-bb61c262ac8d/1d1231102-3779-4932-82d1-0d5f5020f409.png',
+            q: { ua: "Де росте ця квітка і живе папуга?", en: "Where does this flower grow and parrot live?", mm: "ဤပန်းပွင့်နှင့် ကိန်းသည် မည်သည့်နေရာတွင် ဖြစ်ပေါ်သနည်း။" },
+            options: [
+                { id: 'antarctica', ua: 'Антарктида', en: 'Antarctica', mm: 'အန္တာတိက' },
+                { id: 'south_america', ua: 'Південна Америка', en: 'South America', mm: 'တောင်အမေရိက' },
+                { id: 'europe', ua: 'Європа', en: 'Europe', mm: 'ဥရောပ' },
+                { id: 'australia', ua: 'Австралія', en: 'Australia', mm: 'ဩစတြေးလျ' }
+            ],
+            correct: 'south_america'
+        },
+        {
+            type: 'text',
+            img: null,
+            q: { ua: "Який материк найменший?", en: "Which continent is the smallest?", mm: "မည်သည့်တိုက်သည် အသေးငယ်ဆုံးနည်း။" },
+            options: [
+                { id: 'europe', ua: 'Європа', en: 'Europe', mm: 'ဥရောပ' },
+                { id: 'australia', ua: 'Австралія', en: 'Australia', mm: 'ဩစတြေးလျ' },
+                { id: 'antarctica', ua: 'Антарктида', en: 'Antarctica', mm: 'အန္တာတိက' },
+                { id: 'africa', ua: 'Африка', en: 'Africa', mm: 'အာဖရိက' }
+            ],
+            correct: 'australia'
+        },
+        {
+            type: 'text',
+            img: null,
+            q: { ua: "Де знаходяться США та Канада?", en: "Where are the USA and Canada located?", mm: 'အမေရိကန်နှင့် ကနေဒါတို့သည် မည်သည့်နေရာတွင် တည်ရှိသနည်း။' },
+            options: [
+                { id: 'south_america', ua: 'Південна Америка', en: 'South America', mm: 'တောင်အမေရိက' },
+                { id: 'north_america', ua: 'Північна Америка', en: 'North America', mm: 'မြောက်အမေရိက' },
+                { id: 'europe', ua: 'Європа', en: 'Europe', mm: 'ဥရောပ' },
+                { id: 'asia', ua: 'Азія', en: 'Asia', mm: 'အာရှ' }
+            ],
+            correct: 'north_america'
+        },
+        {
+            type: 'text',
+            img: null,
+            q: { ua: "На якому материку немає постійного населення?", en: "Which continent has no permanent population?", mm: "မည်သည့်တိုက်တွင် အမြဲတမ်းနေထိုင်သူ မရှိသနည်း။" },
+            options: [
+                { id: 'australia', ua: 'Австралія', en: 'Australia', mm: 'ဩစတြေးလျ' },
+                { id: 'antarctica', ua: 'Антарктида', en: 'Antarctica', mm: 'အန္တာတိက' },
+                { id: 'africa', ua: 'Африка', en: 'Africa', mm: 'အာဖရိက' },
+                { id: 'asia', ua: 'Азія', en: 'Asia', mm: 'အာရှ' }
+            ],
+            correct: 'antarctica'
+        },
+        {
+            type: 'text',
+            img: null,
+            q: { ua: "Який океан омиває Африку зі сходу?", en: "Which ocean washes Africa from the east?", mm: "အာဖရိကတိုက်၏ အရှေ့ဘက်ကို မည်သည့်သမုဒ္ဒရာက ဆေးကြောသနည်း။" },
+            options: [
+                { id: 'atlantic', ua: 'Атлантичний', en: 'Atlantic', mm: 'အတ္တလန္တိတ်' },
+                { id: 'pacific', ua: 'Тихий', en: 'Pacific', mm: 'ပစိဖိတ်' },
+                { id: 'indian', ua: 'Індійський', en: 'Indian', mm: 'အိန္ဒိယ' },
+                { id: 'arctic', ua: 'Північний Льодовитий', en: 'Arctic', mm: 'အာတိတ်' }
+            ],
+            correct: 'indian'
+        }
+    ];
+
+    const translations = {
+        ua: {
+            startTitle: "Материки Світу",
+            startDesc: "Ласкаво просимо до вікторини! Перевір свої знання про континенти та дізнайся багато нового.",
+            startBtn: "Почати гру",
+            finalTitle: "Вітаємо!",
+            finalDescGood: "Ти справжній експерт!",
+            finalDescAvg: "Непоганий результат!",
+            finalDescBad: "Спробуй ще раз!",
+            restartBtn: "Грати знову",
+            score: "Рахунок"
+        },
+        en: {
+            startTitle: "Continents of the World",
+            startDesc: "Welcome to the quiz! Test your knowledge about continents and learn something new.",
+            startBtn: "Start Game",
+            finalTitle: "Congratulations!",
+            finalDescGood: "You are a real expert!",
+            finalDescAvg: "Not bad!",
+            finalDescBad: "Try again!",
+            restartBtn: "Play Again",
+            score: "Score"
+        },
+        mm: {
+            startTitle: "ကမ္ဘာ့တိုက်ကြီးများ",
+            startDesc: "မေးခွန်းပြိုင်ပွဲသို့ ကြိုဆိုပါသည်။ တိုက်ကြီးများအကြောင်း သင်၏ဗဟုသုတကို စမ်းသပ်ပါ။",
+            startBtn: "ဂိမ်းစတင်ရန်",
+            finalTitle: "ဂုဏ်ယူပါတယ်!",
+            finalDescGood: "သင်သည် ပညာရှင်တစ်ဦးဖြစ်သည်!",
+            finalDescAvg: "မဆိုးဘူး!",
+            finalDescBad: "ထပ်မံကြိုးစားပါ!",
+            restartBtn: "ထပ်မံကစားရန်",
+            score: "ရမှတ်"
+        }
+    };
+
+    let currentLang = 'ua';
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let isAnswering = false;
+
+    // DOM Elements
+    const startScreen = document.getElementById('startScreen');
+    const quizScreen = document.getElementById('quizScreen');
+    const finalScreen = document.getElementById('finalScreen');
+    const questionText = document.getElementById('questionText');
+    const questionImage = document.getElementById('questionImage');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const progressBar = document.getElementById('progressBar');
+    const languageSelect = document.getElementById('languageSelect');
+
+    function changeLanguage() {
+        currentLang = languageSelect.value;
+        updateTexts();
+        if(currentQuestionIndex === 0 && startScreen.classList.contains('active')) {
+            // Already on start screen, texts updated
+        } else if (finalScreen.classList.contains('active')) {
+            updateFinalScreen();
+        } else {
+            renderQuestion();
+        }
+    }
+
+    function updateTexts() {
+        const t = translations[currentLang];
+        document.getElementById('titleStart').innerText = t.startTitle;
+        document.getElementById('descStart').innerText = t.startDesc;
+        document.getElementById('btnStart').innerText = t.startBtn;
+        document.getElementById('titleFinal').innerText = t.finalTitle;
+        document.getElementById('btnRestart').innerText = t.restartBtn;
+    }
+
+    function startQuiz() {
+        score = 0;
+        currentQuestionIndex = 0;
+        scoreDisplay.innerText = score;
+        startScreen.classList.remove('active');
+        finalScreen.classList.remove('active');
+        quizScreen.classList.add('active');
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        isAnswering = false;
+        const qData = quizData[currentQuestionIndex];
+        
+        // Update Progress
+        const progress = ((currentQuestionIndex) / quizData.length) * 100;
+        progressBar.style.width = `${progress}%`;
+
+        // Set Text
+        questionText.innerText = qData.q[currentLang];
+
+        // Set Image
+        if (qData.img) {
+            questionImage.src = qData.img;
+            questionImage.style.display = 'block';
+        } else {
+            questionImage.style.display = 'none';
+        }
+
+        // Generate Options
+        optionsContainer.innerHTML = '';
+        // Shuffle options slightly for variety, but keep mapping correct
+        const shuffledOptions = [...qData.options].sort(() => Math.random() - 0.5);
+
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'option-card';
+            btn.innerText = opt[currentLang];
+            btn.onclick = () => checkAnswer(opt.id, qData.correct, btn);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedId, correctId, btnElement) {
+        if (isAnswering) return;
+        isAnswering = true;
+
+        const allOptions = optionsContainer.children;
+        
+        if (selectedId === correctId) {
+            btnElement.classList.add('correct');
+            score++;
+            scoreDisplay.innerText = score;
+            // Play sound effect logic could go here
+        } else {
+            btnElement.classList.add('wrong');
+            // Highlight correct one
+            for (let opt of allOptions) {
+                // Find the option object that matches the text/content roughly or iterate data
+                // Simpler: re-render correct state visually
+                const currentQ = quizData[currentQuestionIndex];
+                const correctText = currentQ.options.find(o => o.id === correctId)[currentLang];
+                if (opt.innerText === correctText) {
+                    opt.classList.add('correct');
+                }
+            }
+        }
+
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                renderQuestion();
+            } else {
+                showFinalScreen();
+            }
+        }, 1500);
+    }
+
+    function showFinalScreen() {
+        quizScreen.classList.remove('active');
+        finalScreen.classList.add('active');
+        progressBar.style.width = '100%';
+        
+        const t = translations[currentLang];
+        document.getElementById('finalScoreDisplay').innerText = `${score} / ${quizData.length}`;
+        
+        let msg = t.finalDescBad;
+        if (score > 7) msg = t.finalDescGood;
+        else if (score > 4) msg = t.finalDescAvg;
+        
+        document.getElementById('descFinal').innerText = msg;
+
+        if (score > 5) createConfetti();
+    }
+
+    function restartQuiz() {
+        startQuiz();
+    }
+
+    function updateFinalScreen() {
+        const t = translations[currentLang];
+        document.getElementById('titleFinal').innerText = t.finalTitle;
+        document.getElementById('btnRestart').innerText = t.restartBtn;
+        
+        let msg = t.finalDescBad;
+        if (score > 7) msg = t.finalDescGood;
+        else if (score > 4) msg = t.finalDescAvg;
+        document.getElementById('descFinal').innerText = msg;
+    }
+
+    function createConfetti() {
+        const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#FF8585'];
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => {
+                confetti.remove();
+            }, 4000);
+        }
+    }
+
+    // Initialize
+    updateTexts();
+</script>
+
+</body>
+</html>
+
